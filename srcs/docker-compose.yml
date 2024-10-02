@@ -1,0 +1,97 @@
+version: "3.8"
+
+
+volumes:
+  mariadb:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '/home/tburtin/data/mariadb'
+  wordpress:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '/home/tburtin/data/wordpress'
+
+networks:
+  inception:
+    name: inception
+    driver: bridge
+
+services:
+  mariadb:
+    container_name: mariadb
+    image: mariadb:42
+    init: true
+    build:
+      context: ./requirements/mariadb
+      dockerfile: Dockerfile
+      args:
+          - MYSQL_HOSTNAME=${MYSQL_HOSTNAME}
+          - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+          - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+          - MYSQL_USER=${MYSQL_USER}
+          - MYSQL_DATABASE=${MYSQL_DATABASE}
+    env_file:
+      - .env
+    networks:
+      - inception
+    volumes:
+      - mariadb:/var/lib/mysql
+    restart: always
+
+  wordpress:
+      container_name: wordpress
+      image: wordpress:42
+      init: true
+      build:
+        context: ./requirements/wordpress
+        dockerfile: Dockerfile
+        args:
+          - MYSQL_HOSTNAME=${MYSQL_HOSTNAME}
+          - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+          - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+          - MYSQL_USER=${MYSQL_USER}
+          - MYSQL_DATABASE=${MYSQL_DATABASE}
+          - WP_USER=${WP_USER}
+          - WP_USER_PASSWORD=${WP_USER_PASSWORD}
+          - WP_ADMIN=${WP_ADMIN}
+          - WP_PASSWORD=${WP_PASSWORD}
+      env_file:
+        - .env
+      networks:
+        - inception
+      volumes:
+        - wordpress:/var/www/html
+      restart: always
+      depends_on:
+        - mariadb  
+
+  nginx:
+    container_name: nginx
+    image: nginx:42
+    init: true
+    build:
+      context: ./requirements/nginx
+      dockerfile: Dockerfile
+      args:
+        - CERTS_KEY=${CERTS_KEY}
+        - CERTS_CRT=${CERTS_CRT}
+    networks:
+      - inception
+    ports:
+      - "443:443"
+    volumes:
+      - wordpress:/var/www/html
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - mariadb
+      - wordpress
+
+
+
+
