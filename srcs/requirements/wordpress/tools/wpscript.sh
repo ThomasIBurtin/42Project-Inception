@@ -20,11 +20,11 @@ if [ ! -f /var/www/html/wp-config.php ]; then
 fi
 
 wp core install		--allow-root \
-                    --url=qgiraux.42.fr \
-                    --title=qgiraux_inception \
+                    --url=tburtin.42.fr \
+                    --title=Inception \
                     --admin_user=$WP_ADMIN \
                     --admin_password=$WP_PASSWORD \
-                    --admin_email=quentin.giraux@gmail.com \
+                    --admin_email=thomas.burtin@gmail.com \
                     --path='/var/www/html'
 
 php-fpm -F
