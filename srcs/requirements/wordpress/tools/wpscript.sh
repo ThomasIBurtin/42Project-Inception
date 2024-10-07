@@ -24,7 +24,7 @@ wp core install		--allow-root \
                     --title=Inception \
                     --admin_user=$WP_ADMIN \
                     --admin_password=$WP_PASSWORD \
-                    --admin_email=thomas.burtin@gmail.com \
+                    --admin_email=thomasburtin@gmail.com \
                     --path='/var/www/html'
 
 php-fpm -F
